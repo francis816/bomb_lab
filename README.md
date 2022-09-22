@@ -17,7 +17,5 @@ trying to defuse phase 1 - 6 by analyzing the x86-64 assembly code
   - Canary to defect potential buffer overflow
   - Array and pointer arithmetic
   - Mapping index after masking the lower 4 bytes
-  
-  
-  
+    
 ![](phase5.png)

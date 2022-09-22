@@ -5,12 +5,19 @@ trying to defuse phase 1 - 6 by analyzing the x86-64 assembly code
 ## Phase 1 characteristics:
  - comparing strings 
  
+ 
 ## Phase 2 characteristics:
  - loop
  - pointer arithmetic
 
 ![](phase2.png)
 
+
+## Phase 3 characteristics:
+ - string input function sscanf and its parameters
+ - jump table (switch statement)
+
+![](phase3.png)
 
 
 ## Phase 5 characteristics:

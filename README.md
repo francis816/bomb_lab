@@ -14,10 +14,17 @@ trying to defuse phase 1 - 6 by analyzing the x86-64 assembly code
 
 
 ## Phase 3 characteristics:
- - string input function sscanf and its parameters
+ - string input function sscanf and its parameters (1st = string, 2nd = string format, starting from 3rd = format specifier, pass in pointer)
  - jump table (switch statement)
 
 ![](phase3.png)
+
+
+## Phase 4 characteristics:
+ - string input function sscanf and its parameters (1st = string, 2nd = string format, starting from 3rd = format specifier, pass in pointer)
+ - recursion
+
+![](phase4.png)
 
 
 ## Phase 5 characteristics:

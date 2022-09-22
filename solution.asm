@@ -5,8 +5,8 @@
   400ee9:	e8 4a 04 00 00       	call   401338 <strings_not_equal> // compare 1st param (our input) to 2nd param
   400eee:	85 c0                	test   %eax,%eax                  
   400ef0:	74 05                	je     400ef7 <phase_1+0x17>      // if return value = 0 (equal) jump
-                                                                      // return value = 1 means true for 
-																	  // strings_ not_ equal
+                                                                          // return value = 1 means true for 
+			                                                  // strings_ not_ equal
 
   400ef2:	e8 43 05 00 00       	call   40143a <explode_bomb>      // otherwise explode the bomb
   400ef7:	48 83 c4 08          	add    $0x8,%rsp                  // deallocate 8 bytes on stack
@@ -32,25 +32,27 @@ so we can just x/s 0x402400 to see what the answer string is
   400f0e:	74 20                	je     400f30 <phase_2+0x34>      // equal = jump
   400f10:	e8 25 05 00 00       	call   40143a <explode_bomb>      // not equal = bomb, so must = 1
   400f15:	eb 19                	jmp    400f30 <phase_2+0x34> 
-
+// loop starts
   400f17:	8b 43 fc             	mov    -0x4(%rbx),%eax            // move the val before rbx to eax
-                                                                      // we can see each val is 4 byte,
-																	  // so it is int
-																	  // a bit like i - 1 
+                                                                          // we can see each val is 4 byte,
+				                                          // so it is int
+		                                                          // a bit like i - 1 
   400f1a:	01 c0                	add    %eax,%eax                  // x2 on the value
   400f1c:	39 03                	cmp    %eax,(%rbx)                // compare value at eax and rbx
   400f1e:	74 05                	je     400f25 <phase_2+0x29>      // equal, jump
   400f20:	e8 15 05 00 00       	call   40143a <explode_bomb>      // not equal, bomb
-                                                                      // so we can see i = (i - 1) * 2
+                                                                          // so we can see i = (i - 1) * 2
 
   400f25:	48 83 c3 04          	add    $0x4,%rbx                  // increment
   400f29:	48 39 eb             	cmp    %rbp,%rbx                  // see if i reaches the end yet
   400f2c:	75 e9                	jne    400f17 <phase_2+0x1b>      // if not, continue looping
   400f2e:	eb 0c                	jmp    400f3c <phase_2+0x40>      // if yes, finish the loop
+// loop finish 
+
   400f30:	48 8d 5c 24 04       	lea    0x4(%rsp),%rbx             // stack top pointer + 4 bytes to rbx
   400f35:	48 8d 6c 24 18       	lea    0x18(%rsp),%rbp            // stack top pointer + 24 bytes to rbp
-                                                                      // we can see we are initailizing vals
-																	  // for potential loop
+                                                                          // we can see we are initailizing vals
+						                          // for potential loop
 														
   400f3a:	eb db                	jmp    400f17 <phase_2+0x1b>      
   400f3c:	48 83 c4 28          	add    $0x28,%rsp                 // deallocate the stack

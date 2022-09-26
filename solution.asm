@@ -348,14 +348,14 @@ for (int i = 0; i <= 6; i++)
 // traverse linked-list
 401176:	48 8b 52 08          	mov    0x8(%rdx),%rdx           // ********** 
                                                                 // very interesting
-																// for the first increment:
-																// be careful it is not lea 0x8(%rdx)
-																// which = 0x6032d8
-																// but here we have mov 0x8(%rdx)
-																// which means we deference the val at 0x6032d8
-																// which is a 0x6032e0, interesting!
-																// we see that  address 0x6032d8 stores a 
-																// pointer pointing at 0x6032e0
+								// for the first increment:
+								// be careful it is not lea 0x8(%rdx)
+								// which = 0x6032d8
+								// but here we have mov 0x8(%rdx)
+								// which means we deference the val at 0x6032d8
+								// which is a 0x6032e0, interesting!
+								// we see that  address 0x6032d8 stores a 
+								// pointer pointing at 0x6032e0
                                                                 // so rdx = 0x6032e0
 
 40117a:	83 c0 01             	add    $0x1,%eax                // eax = 2
@@ -386,7 +386,7 @@ a8  = 168
 401183:	ba d0 32 60 00       	mov    $0x6032d0,%edx
 401188:	48 89 54 74 20       	mov    %rdx,0x20(%rsp,%rsi,2)   // 6th node at stack top + 32 offset
                                                                 // 5th node at stack top + 40 offset
-																// 4th node at stack top + 48 offset
+								// 4th node at stack top + 48 offset
 
 40118d:	48 83 c6 04          	add    $0x4,%rsi                // increment offset
 401191:	48 83 fe 18          	cmp    $0x18,%rsi               // 4 != 24         // 8 != 24 ...

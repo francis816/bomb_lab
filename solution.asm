@@ -254,3 +254,238 @@ n = 14
 
 one possible answer = "ionefg"
 */
+
+
+
+
+
+
+00000000004010f4 <phase_6>:
+4010f4:	41 56                	push   %r14
+4010f6:	41 55                	push   %r13
+4010f8:	41 54                	push   %r12
+4010fa:	55                   	push   %rbp
+4010fb:	53                   	push   %rbx
+4010fc:	48 83 ec 50          	sub    $0x50,%rsp               // allocate 80 bytes on stack
+401100:	49 89 e5             	mov    %rsp,%r13                // mov %rsp = move the pointer to r13. mov (%rsp) = dereferencing the pointer and move the val
+401103:	48 89 e6             	mov    %rsp,%rsi                
+401106:	e8 51 03 00 00       	call   40145c <read_six_numbers>
+40110b:	49 89 e6             	mov    %rsp,%r14                // now rsp pointing to the 1st num
+40110e:	41 bc 00 00 00 00    	mov    $0x0,%r12d               
+
+
+
+// outer loop
+
+401114:	4c 89 ed             	mov    %r13,%rbp                // update rbp to r13
+401117:	41 8b 45 00          	mov    0x0(%r13),%eax           // dereferencing val at r13 to rax, it starts at 1st num
+40111b:	83 e8 01             	sub    $0x1,%eax                
+40111e:	83 f8 05             	cmp    $0x5,%eax                
+401121:	76 05                	jbe    401128 <phase_6+0x34>    // num - 1 <= 5, aka num <= 6
+401123:	e8 12 03 00 00       	call   40143a <explode_bomb> 
+401128:	41 83 c4 01          	add    $0x1,%r12d               // increment i starting from 0
+40112c:	41 83 fc 06          	cmp    $0x6,%r12d               // while (i < 6)
+401130:	74 21                	je     401153 <phase_6+0x5f>
+401132:	44 89 e3             	mov    %r12d,%ebx               // ebx = i
+
+// a nested loop
+
+// loop to check if all nums after are different than the previous num
+// e.g.
+// loop to check if 2nd - 6th num are different than 1st num
+// loop to check if 3rd - 6th num are different than 2nd num
+// loop to check if 4th - 6th num are different than 3rd num ...
+
+for (int i = 0; i <= 6; i++)
+{
+	if (num[i] > 6) bomb;
+	for (int j = i + 1; j <= 6; j++)
+	{
+		if (num[i] == num[j]) bomb;
+	}
+
+}
+
+401135:	48 63 c3             	movslq %ebx,%rax               
+401138:	8b 04 84             	mov    (%rsp,%rax,4),%eax       
+40113b:	39 45 00             	cmp    %eax,0x0(%rbp)
+40113e:	75 05                	jne    401145 <phase_6+0x51>
+401140:	e8 f5 02 00 00       	call   40143a <explode_bomb>
+401145:	83 c3 01             	add    $0x1,%ebx                 
+401148:	83 fb 05             	cmp    $0x5,%ebx
+40114b:	7e e8                	jle    401135 <phase_6+0x41>
+40114d:	49 83 c5 04          	add    $0x4,%r13                // r13 point to next num
+401151:	eb c1                	jmp    401114 <phase_6+0x20>    
+
+
+
+401153:	48 8d 74 24 18       	lea    0x18(%rsp),%rsi          // move pointer at rsp + 24 offset to %rsi
+401158:	4c 89 f0             	mov    %r14,%rax                // move pointer at rsp + 0 to %rax
+40115b:	b9 07 00 00 00       	mov    $0x7,%ecx                 
+
+// a loop to reverse the 6 numbers
+for (int i = 0; i <= 6; i++)
+{
+	num[i] = 7 - num[i];
+}
+                                                                // 1st loop:             // 2nd loop:
+401160:	89 ca                	mov    %ecx,%edx                // edx = 7               // edx = 7 
+401162:	2b 10                	sub    (%rax),%edx              // edx = 7 - 1 = 6       // edx = 7 - 2 = 5
+401164:	89 10                	mov    %edx,(%rax)              // 1st num = 6           // 2nd num = 5
+401166:	48 83 c0 04          	add    $0x4,%rax                // point to next num     
+40116a:	48 39 f0             	cmp    %rsi,%rax                // while num 1 <= num 6
+40116d:	75 f1                	jne    401160 <phase_6+0x6c>
+
+
+
+40116f:	be 00 00 00 00       	mov    $0x0,%esi                
+401174:	eb 21                	jmp    401197 <phase_6+0xa3>
+
+
+// outer loop
+
+// nested loop
+// traverse linked-list
+401176:	48 8b 52 08          	mov    0x8(%rdx),%rdx           // ********** 
+                                                                // very interesting
+																// for the first increment:
+																// be careful it is not lea 0x8(%rdx)
+																// which = 0x6032d8
+																// but here we have mov 0x8(%rdx)
+																// which means we deference the val at 0x6032d8
+																// which is a 0x6032e0, interesting!
+																// we see that  address 0x6032d8 stores a 
+																// pointer pointing at 0x6032e0
+                                                                // so rdx = 0x6032e0
+
+40117a:	83 c0 01             	add    $0x1,%eax                // eax = 2
+40117d:	39 c8                	cmp    %ecx,%eax                // 2 != 6
+40117f:	75 f5                	jne    401176 <phase_6+0x82>
+
+using x /30w 0x6032d0, we see the up coming 30 addresses since 0x6032d0
+
+                  (sercet num) (our input) (next pointer)
+0x6032d0 <node1>:   0x0000014c 0x00000001 0x006032e0
+0x6032e0 <node2>:   0x000000a8 0x00000002 0x006032f0
+0x6032f0 <node3>:   0x0000039c 0x00000003 0x00603300
+0x603300 <node4>:   0x000002b3 0x00000004 0x00603310
+0x603310 <node5>:   0x000001dd 0x00000005 0x00603320
+0x603320 <node5>:   0x000001bb 0x00000006 0x00000000 (nullptr)
+
+14c = 332
+a8  = 168
+39c = 924
+2b3 = 691
+1dd = 477
+1bb = 443
+
+// nested loop end ***
+
+// placing node on stack
+401181:	eb 05                	jmp    401188 <phase_6+0x94>
+401183:	ba d0 32 60 00       	mov    $0x6032d0,%edx
+401188:	48 89 54 74 20       	mov    %rdx,0x20(%rsp,%rsi,2)   // 6th node at stack top + 32 offset
+                                                                // 5th node at stack top + 40 offset
+																// 4th node at stack top + 48 offset
+
+40118d:	48 83 c6 04          	add    $0x4,%rsi                // increment offset
+401191:	48 83 fe 18          	cmp    $0x18,%rsi               // 4 != 24         // 8 != 24 ...
+401195:	74 14                	je     4011ab <phase_6+0xb7>    
+401197:	8b 0c 34             	mov    (%rsp,%rsi,1),%ecx       // ecx = 1st num   // ecx = 2nd num ...
+40119a:	83 f9 01             	cmp    $0x1,%ecx                
+40119d:	7e e4                	jle    401183 <phase_6+0x8f>   
+40119f:	b8 01 00 00 00       	mov    $0x1,%eax                // eax = 1
+4011a4:	ba d0 32 60 00       	mov    $0x6032d0,%edx           // edx = 0x6032d0 
+4011a9:	eb cb                	jmp    401176 <phase_6+0x82>    
+
+
+4011ab:	48 8b 5c 24 20       	mov    0x20(%rsp),%rbx          // rbx = 0x603320
+4011b0:	48 8d 44 24 28       	lea    0x28(%rsp),%rax          // rax = rsp + 40
+4011b5:	48 8d 74 24 50       	lea    0x50(%rsp),%rsi          // rsi = rsp + 80
+4011ba:	48 89 d9             	mov    %rbx,%rcx                // rcx = 0x603320
+
+// reverse linked-list **********
+4011bd:	48 8b 10             	mov    (%rax),%rdx              // rdx = 0x603310   // = 0x603300 ...
+4011c0:	48 89 51 08          	mov    %rdx,0x8(%rcx)           // 0x603328 = 0x603310 instead of nullptr  // 0x603318 = 0x603300 ...
+4011c4:	48 83 c0 08          	add    $0x8,%rax                // rax = rsp + 48   // rax = rsp + 56 ...
+4011c8:	48 39 f0             	cmp    %rsi,%rax                // rsp + 48 != rsp + 80  
+4011cb:	74 05                	je     4011d2 <phase_6+0xde>
+4011cd:	48 89 d1             	mov    %rdx,%rcx                // rcx = 0x603310  // rcx = 0x603300 ...
+4011d0:	eb eb                	jmp    4011bd <phase_6+0xc9>
+
+4011d2:	48 c7 42 08 00 00 00 	movq   $0x0,0x8(%rdx)           // set nullptr
+
+                  (sercet num) (our input) (next pointer)
+0x6032d0 <node1>:   0x0000014c 0x00000001 0x00000000 (nullptr)
+0x6032e0 <node2>:   0x000000a8 0x00000002 0x006032d0
+0x6032f0 <node3>:   0x0000039c 0x00000003 0x006032e0
+0x603300 <node4>:   0x000002b3 0x00000004 0x006032f0
+0x603310 <node5>:   0x000001dd 0x00000005 0x00603300
+0x603320 <node6>:   0x000001bb 0x00000006 0x00603310
+
+14c = 332, a8 = 168, 39c = 924, 2b3 = 691, 1dd = 477, 1bb = 443
+
+4011d9:	00 
+4011da:	bd 05 00 00 00       	mov    $0x5,%ebp                // ebp = 5
+4011df:	48 8b 43 08          	mov    0x8(%rbx),%rax           // rax = dereferencing 0x603328 and got another pointer = 0x603310
+4011e3:	8b 00                	mov    (%rax),%eax              // eax = dereferencing 0x603310 = 1dd
+4011e5:	39 03                	cmp    %eax,(%rbx)              // cmp %eax's 1dd to (%rbx)'s 1bb, aka 477 vs 443 
+4011e7:	7d 05                	jge    4011ee <phase_6+0xfa>    // jump if (rbx) >= eax, but we bomb bc 1bb is not >= 1dd
+4011e9:	e8 4c 02 00 00       	call   40143a <explode_bomb>    // so probably something went wrong at the very beg.
+                                                               
+
+**************************************************************************************************************************************************
+// if we try to input our 6 nums as 6 5 4 3 2 1, then it will reverse to (rsp) = 1, (rsp + 4) = 2, (rsp + 8) = 3...
+// it also means that we have (rsp + 32) = 0x6032d0, ...  (rsp + 80) = 0x603320
+// p /x *(int *)($rsp + 32) to get 0x6032d0
+// p /x *(0x6032d8) to get 0x6032e0
+// p /x *(0x603328) to get nullptr 
+// and we can conclude:
+
+0x603320 <node6>:   0x000001bb 0x00000006 0x00000000 (nullptr)
+0x603310 <node5>:   0x000001dd 0x00000005 0x00603320
+0x603300 <node4>:   0x000002b3 0x00000004 0x00603310
+0x6032f0 <node3>:   0x0000039c 0x00000003 0x00603300
+0x6032e0 <node2>:   0x000000a8 0x00000002 0x006032f0
+0x6032d0 <node1>:   0x0000014c 0x00000001 0x006032e0 
+
+then we will have eax = 168, (rbx) = 332, and  we won't bomb
+
+
+but during the 2nd loop
+we will haveto compare eax = 39c (924) to (rbx) = a8 (168) it will bomb again.
+
+
+so we need to have pointer that point to the biggest number at rsp + 32 and smallest at rsp + 80
+so we want node3 => node4 => node5 => node6 => node1 => node2
+
+but remember to get node1, 2, 3, 4, 5, 6,
+we need to input 6, 5, 4, 3, 2, 1
+which is 7-6=1, 7-5=2, 7-4=3, 7-4=3, 7-3=2, 7-2=1
+
+so if we want 3, 4, 5, 6, 1, 2
+then we will input 7-3=4, 7-4=3, 7-5=2, 7-6=1, 7-1=6, 7-2=5
+
+and the correct linked-list is 
+0x6032e0 <node2>:   0x000000a8 0x00000002 0x00000000 (nullptr)
+0x6032d0 <node1>:   0x0000014c 0x00000001 0x006032e0 
+0x603320 <node6>:   0x000001bb 0x00000006 0x006032d0 
+0x603310 <node5>:   0x000001dd 0x00000005 0x00603320
+0x603300 <node4>:   0x000002b3 0x00000004 0x00603310
+0x6032f0 <node3>:   0x0000039c 0x00000003 0x00603300
+
+
+**************************************************************************************************************************************************
+
+4011ee:	48 8b 5b 08          	mov    0x8(%rbx),%rbx          
+4011f2:	83 ed 01             	sub    $0x1,%ebp
+4011f5:	75 e8                	jne    4011df <phase_6+0xeb>
+4011f7:	48 83 c4 50          	add    $0x50,%rsp
+4011fb:	5b                   	pop    %rbx
+4011fc:	5d                   	pop    %rbp
+4011fd:	41 5c                	pop    %r12
+4011ff:	41 5d                	pop    %r13
+401201:	41 5e                	pop    %r14
+401203:	c3                   	ret    
+
+// ans = 4 3 2 1 6 5 

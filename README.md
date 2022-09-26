@@ -40,3 +40,6 @@ trying to defuse phase 1 - 6 by analyzing the x86-64 assembly code
   - left and right pointer to swap number
     
 ![](phase6.png)
+
+
+![](defused.png)

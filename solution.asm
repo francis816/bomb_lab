@@ -57,7 +57,7 @@ so we can just x/s 0x402400 to see what the answer string is
   400f41:	5d                   	pop    %rbp
   400f42:	c3                   	ret    
 
-
+; answer = 1 2 4 8 16 32
 
 
 
